@@ -200,7 +200,7 @@ void UTIL_PrintChatColor(size_t player, const char* msg)
 		UTIL_ClientSayText(g_game.edictByIndex(player), buf, sender, team);
 	}
 	else {
-		for (int i = 0; i < g_players.getMaxClients(); i++) {
+		for (size_t i = 0; i < g_players.getMaxClients(); i++) {
 			if (!g_players.getPlayer(i)->isInGame())
 				continue;
 

@@ -29,6 +29,8 @@
 
 #if defined(__GNUC__)
 #include <cpuid.h>
+#else
+#include <intrin.h> 
 #endif
 
 #define SSE3_FLAG		(1<<0)

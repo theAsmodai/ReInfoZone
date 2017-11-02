@@ -1,5 +1,8 @@
 #include "precompiled.h"
 
+#define NAV_MAGIC_NUMBER     0xFEEDFACE
+#define NAV_VERSION          5
+
 config_t g_config;
 
 cvar_t cv_iz_zone_leave_time = {"iz_zone_leave_time", "0.5", FCVAR_EXTDLL, 0.5, NULL};
@@ -258,7 +261,6 @@ bool parseLineToFields(char* line, CFields& fields, const char* file, size_t lin
 bool parseZonesConfig(const char* path, const char* file)
 {
 	FILE* fp = fopen(path, "rt");
-
 	if (!fp)
 		return false;
 
@@ -315,6 +317,142 @@ bool parseZonesConfig(const char* path, const char* file)
 	return true;
 }
 
+void loadArea(FILE* fp, std::vector<char *>& places)
+{
+	// load ID
+	uint32_t id;
+	fread(&id, sizeof(uint32_t), 1, fp);
+
+	// load attribute flags
+	uint8_t flags;
+	fread(&flags, sizeof(uint8_t), 1, fp);
+
+	struct Extent
+	{
+		float lo[3];
+		float hi[3];
+	};
+
+	// load extent of area
+	Extent extent;
+	fread(&extent, sizeof(float), 6, fp);
+
+	// load heights of implicit corners
+	float neZ, swZ;
+	fread(&neZ, sizeof(float), 1, fp);
+	fread(&swZ, sizeof(float), 1, fp);
+
+	enum NavDirType
+	{
+		NORTH,
+		EAST,
+		SOUTH,
+		WEST,
+
+		NUM_DIRECTIONS
+	};
+
+	// load connections (IDs) to adjacent areas
+	// in the enum order NORTH, EAST, SOUTH, WEST
+	for (int d = 0; d < NUM_DIRECTIONS; d++) {
+		// load number of connections for this direction
+		uint32_t count;
+		fread(&count, sizeof(uint32_t), 1, fp);
+
+		// load connects
+		fseek(fp, sizeof(int) * count, SEEK_CUR);
+	}
+
+	// Load hiding spots
+	// load number of hiding spots
+	uint8_t hidingSpotCount;
+	fread(&hidingSpotCount, sizeof(uint8_t), 1, fp);
+
+	// load HidingSpot objects for this area
+	fseek(fp, (sizeof(uint32_t) + sizeof(float) * 3 + sizeof(uint8_t)) * hidingSpotCount, SEEK_CUR);
+
+	// Load number of approach areas
+	uint8_t approachCount;
+	fread(&approachCount, sizeof(uint8_t), 1, fp);
+
+	// load approach area info (IDs)
+	fseek(fp, (sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint8_t) + sizeof(uint32_t) + sizeof(uint8_t)) * approachCount, SEEK_CUR);
+
+	// Load encounter paths for this area
+	uint32_t encounterCount;
+	fread(&encounterCount, sizeof(uint32_t), 1, fp);
+
+	for (size_t e = 0; e < encounterCount; e++) {
+		fseek(fp, sizeof(uint32_t) * 2 + sizeof(uint8_t) * 2, SEEK_CUR);
+
+		uint8_t spotCount;
+		fread(&spotCount, sizeof(uint8_t), 1, fp);
+		fseek(fp, (sizeof(uint32_t) + sizeof(uint8_t)) * spotCount, SEEK_CUR);
+	}
+
+	// Load Place data
+	uint16_t place;
+	fread(&place, sizeof(uint16_t), 1, fp);
+
+	if (place && place <= places.size()) {
+		translation_t translation;
+		translation.lang = g_lang.addLang("en");
+		translation.text = places[place - 1];
+
+		extent.hi[2] += 128.0f;
+		g_zoneManager.addZone(&translation, 1, extent.lo, extent.hi);
+	}
+}
+
+bool loadNavFile()
+{
+	char path[MAX_PATH];
+	g_amxxapi.BuildPathnameR(path, sizeof path - 1, "maps/%s.nav", STRING(gpGlobals->mapname));
+
+	FILE* fp = fopen(path, "rb");
+	if (!fp)
+		return false;
+
+	int magic;
+	fread(&magic, sizeof(int), 1, fp);
+	if (magic != NAV_MAGIC_NUMBER)
+		return false;
+
+	int version;
+	fread(&version, sizeof(int), 1, fp);
+	if (version != NAV_VERSION)
+		return false;
+
+	// bsp size
+	fseek(fp, sizeof(int), SEEK_CUR);
+
+	uint16_t count;
+	fread(&count, sizeof(uint16_t), 1, fp);
+
+	// read each entry
+	std::vector<char *> places;
+	char placeName[256];
+	uint16_t len;
+
+	for (size_t i = 0; i < count; i++) {
+		fread(&len, sizeof(uint16_t), 1, fp);
+		fread(placeName, sizeof(char), len, fp);
+		places.push_back(_strdup(placeName));
+	}
+
+	uint32_t areaCount;
+	fread(&areaCount, sizeof(uint32_t), 1, fp);
+
+	for (size_t i = 0; i < areaCount; i++)
+		loadArea(fp, places);
+
+	for (auto pl : places)
+		free(pl);
+
+	fclose(fp);
+	return true;
+}
+
 bool loadZonesConfig()
 {
 	char path[260], file[260];
@@ -323,7 +461,11 @@ bool loadZonesConfig()
 
 	if (!parseZonesConfig(path, file)) {
 		LCPrintf("Zones file %s not found\n", file);
-		return false;
+
+		if (!loadNavFile())
+			return false;
+
+		LCPrintf("Using %s.nav file\n", STRING(gpGlobals->mapname));
 	}
 
 	if (!g_zoneManager.getZonesCount()) {
