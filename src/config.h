@@ -56,5 +56,4 @@ struct config_t
 
 extern config_t g_config;
 
-bool loadZonesConfig();
-bool loadMainConfig();
+void loadConfigs();

@@ -89,10 +89,10 @@ NOINLINE void LCPrintf(const char *fmt, ...)
 NOINLINE void UTIL_LogPrintf(char *fmt, ...)
 {
 	va_list argptr;
-	static char string[1024];
+	char string[1024];
 
 	va_start(argptr, fmt);
-	vsnprintf(string, sizeof(string), fmt, argptr);
+	vsnprintf(string, sizeof string, fmt, argptr);
 	va_end(argptr);
 
 	// Print to log
@@ -101,8 +101,6 @@ NOINLINE void UTIL_LogPrintf(char *fmt, ...)
 
 NOINLINE void UTIL_ClientSayText(edict_t *pEntity, char* msg, int sender, CsTeams team)
 {
-	gmsgSayText = GET_USER_MSG_ID(PLID, "SayText", NULL);
-
 	if (sender) {
 		MESSAGE_BEGIN(MSG_ONE, gmsgSayText, NULL, pEntity);
 		WRITE_BYTE(sender);

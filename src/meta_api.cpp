@@ -52,7 +52,7 @@ static META_FUNCTIONS gMetaFunctionTable = {
 plugin_info_t Plugin_info = {
 	META_INTERFACE_VERSION,	// ifvers
 	"ReInfoZone",	// name
-	"0.5",	// version
+	"0.6",	// version
 	__DATE__,	// date
 	"Asmodai",	// author
 	"http://dedicated-server.ru",	// url

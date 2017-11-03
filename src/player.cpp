@@ -175,7 +175,7 @@ void CPlayer::showHud(hudparms_t& parms, float holdTime, const char* message) co
 
 void CPlayer::showMenu(radiomenu_t* menu) const
 {
-	showMenu(menu->keybits, menu->text, menu->len, _Menu(Menu_Radio1 - 1 + menu->id));
+	if(menu) showMenu(menu->keybits, menu->text, menu->len, _Menu(Menu_Radio1 - 1 + menu->id));
 }
 
 void CPlayer::showMenu(int keys, const char* text, size_t len, _Menu menu) const

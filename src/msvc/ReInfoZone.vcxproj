@@ -45,7 +45,7 @@
     <ClInclude Include="..\zones.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\configs\info_zone.ini" />
+    <None Include="..\..\amxmodx\configs\info_zone.ini" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{88CFE56D-AFD1-43CC-9292-9DAA157286FB}</ProjectGuid>

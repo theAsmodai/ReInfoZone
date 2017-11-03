@@ -59,7 +59,7 @@ bool ReInfoZone_RehldsApi_Init() {
 	}
 #else
 	CSysModule* engineModule = Sys_LoadModule("engine_i486.so");
-	if (!Revoice_RehldsApi_TryInit(engineModule, failReason)) {
+	if (!ReInfoZone_RehldsApi_TryInit(engineModule, failReason)) {
 		LCPrintf("%s", failReason);
 		return false;
 	}

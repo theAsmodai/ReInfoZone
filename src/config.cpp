@@ -250,7 +250,7 @@ bool parseLineToFields(char* line, CFields& fields, const char* file, size_t lin
 			break;
 
 		default:
-		LCPrintf("Invalid field type %i (pos %i) at line %i in %s\n", field->type, i, line_number, file);
+			LCPrintf("Invalid field type %i (pos %i) at line %i in %s\n", field->type, i, line_number, file);
 			return false;
 		}
 	}
@@ -413,6 +413,8 @@ bool loadNavFile()
 	if (!fp)
 		return false;
 
+	LCPrintf("Using %s.nav file\n", STRING(gpGlobals->mapname));
+
 	int magic;
 	fread(&magic, sizeof(int), 1, fp);
 	if (magic != NAV_MAGIC_NUMBER)
@@ -461,14 +463,6 @@ bool loadZonesConfig()
 
 	if (!parseZonesConfig(path, file)) {
 		LCPrintf("Zones file %s not found\n", file);
-
-		if (!loadNavFile())
-			return false;
-
-		LCPrintf("Using %s.nav file\n", STRING(gpGlobals->mapname));
-	}
-
-	if (!g_zoneManager.getZonesCount()) {
 		return false;
 	}
 
@@ -478,8 +472,7 @@ bool loadZonesConfig()
 
 bool parseParam(const char* param, const char* value)
 {
-	CPlayer::options_u opt;
-	opt.integer = 0;
+	CPlayer::options_u opt = {};
 	size_t integer = atoi(value);
 
 	if (!strcmp(param, "log_mode")) {
@@ -703,4 +696,12 @@ bool loadMainConfig()
 
 	LCPrintf("Main config loaded.\n");
 	return true;
+}
+
+void loadConfigs()
+{
+	loadMainConfig();
+	bool zones_loaded = loadZonesConfig();
+	g_lang.setDefault(g_config.defaultLang);
+	if (!zones_loaded) loadNavFile();
 }

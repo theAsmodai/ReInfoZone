@@ -74,14 +74,35 @@ lang_t CLang::addLang(const char* code)
 	return newLang;
 }
 
+lang_t CLang::getDefault() const
+{
+	return m_defaultLang;
+}
+
 NOINLINE void CLang::setDefault(lang_t lang)
 {
-	for (auto& itr : m_langs) {
-		if (lang == itr) {
-			m_defaultLang = lang;
-			break;
+	if (lang != UNKNOWN_LANG) {
+		for (auto itr : m_langs) {
+			if (lang == itr) {
+				m_defaultLang = lang;
+				return;
+			}
 		}
 	}
+
+	for (auto itr : m_langs) {
+		if (lang_t("en") == itr) {
+			m_defaultLang = itr;
+			return;
+		}
+	}
+
+	if (!m_langs.empty()) {
+		m_defaultLang = m_langs.front();
+		return;
+	}
+
+	m_defaultLang = UNKNOWN_LANG;
 }
 
 void CLang::addPhrase(const char* phrase, translation_t* translations, size_t translations_count)

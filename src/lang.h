@@ -37,7 +37,8 @@ public:
 	CLang();
 	void clear();
 	lang_t addLang(const char* code);
-	void setDefault(lang_t lang);
+	lang_t getDefault() const;
+	void setDefault(lang_t lang = UNKNOWN_LANG);
 	void addPhrase(const char* phrase, translation_t* translations, size_t translations_count);
 	const char* localize(const phrase_t& phrase, lang_t lang, const char* fail = "<unknown>") const;
 	const char* localize(const char* phrase, lang_t lang, const char* fail = "<unknown>") const;

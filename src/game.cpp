@@ -64,9 +64,7 @@ void CGame::mapStart(edict_t* edicts, size_t maxclients)
 	m_edictList = edicts;
 	m_mapActive = true;
 
-	loadMainConfig();
-	loadZonesConfig();
-	g_lang.setDefault(g_config.defaultLang);
+	loadConfigs();
 
 	if (g_engfuncs.pfnCVarGetFloat("developer") != 0.0)
 		LCPrintf("Memory used: %.1fKb\n", memoryUsed() / 1024.0);
@@ -185,7 +183,7 @@ edict_t* CGame::getPlantedBomb() const
 	};
 
 	edict_t* ent = nullptr;
-	while ((ent = g_engfuncs.pfnFindEntityByString(ent, "classname", "grenade")) != NULL) {
+	while ((ent = g_engfuncs.pfnFindEntityByString(ent, "classname", "grenade")) != nullptr) {
 		if (isC4(ent))
 			break;
 	}
@@ -279,24 +277,28 @@ radiomenu_t* CGame::getRadioMenu(size_t menuid, lang_t lang)
 	CMsgBuf buf(va("%s\n\n", g_lang.localize(va("radio_menu_%i", menuid), lang, "\\yRadio\\w")));
 	auto menu_option = g_lang.localize("radio_menu_option", lang, "[number]. [option]");
 	int keys = MENU_KEY_0;
-	size_t n = 1;
+	size_t n = 0;
 
 	for (auto& radio : m_radio) {
 		if (radio.menuid != menuid)
 			continue;
 
-		keys |= 1 << (n - 1);
+		keys |= 1 << n++;
 
 		CMsgBuf option(va("%s\n", menu_option));
-		option.replace("[number]", va("%i", n++));
+		option.replace("[number]", va("%i", n));
 		option.replace("[option]", g_lang.localize(radio.phrases[rp_menu], lang));
 		buf.add(option);
 
-		if (n > 9)
+		if (n > 8)
 			break;
 	}
 
-	buf.add(va("\n%s", g_lang.localize("radio_menu_exit", lang, "0. Exit")));
-	m_radioMenuCache.emplace_back(menuid, lang, buf.data(), keys);
-	return &m_radioMenuCache[m_radioMenuCache.size() - 1];
+	if (n) {
+		buf.add(va("\n%s", g_lang.localize("radio_menu_exit", lang, "0. Exit")));
+		m_radioMenuCache.emplace_back(menuid, lang, buf.data(), keys);
+		return &m_radioMenuCache[m_radioMenuCache.size() - 1];
+	}
+
+	return nullptr;
 }
