@@ -1,4 +1,4 @@
-LIBRARY reinfozone_mm
+LIBRARY reinfozone_amxx
 EXPORTS
 	GiveFnptrsToDll			@1
 SECTIONS

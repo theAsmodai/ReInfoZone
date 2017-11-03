@@ -66,6 +66,7 @@ void CGame::mapStart(edict_t* edicts, size_t maxclients)
 
 	loadMainConfig();
 	loadZonesConfig();
+	g_lang.setDefault(g_config.defaultLang);
 
 	if (g_engfuncs.pfnCVarGetFloat("developer") != 0.0)
 		LCPrintf("Memory used: %.1fKb\n", memoryUsed() / 1024.0);
@@ -227,7 +228,7 @@ void CGame::addRadio(size_t menuid, const char* command, translation_t translati
 	radiocommand_t rc;
 	rc.command = dupString(command);
 	rc.phrases = (phrase_t *)allocMemory(phrases_count * sizeof(phrase_t));
-	rc.menuid = menuid;
+	rc.menuid = (uint8)menuid;
 	rc.mult = mult;
 
 	for (size_t i = 0; i < phrases_count; i++) {

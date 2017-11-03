@@ -12,11 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\amxxmodule.cpp" />
-    <ClCompile Include="..\config.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MinSpace</Optimization>
-      <InlineFunctionExpansion Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Default</InlineFunctionExpansion>
-      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Size</FavorSizeOrSpeed>
-    </ClCompile>
+    <ClCompile Include="..\config.cpp" />
     <ClCompile Include="..\dllapi.cpp" />
     <ClCompile Include="..\engine_api.cpp" />
     <ClCompile Include="..\game.cpp" />
@@ -113,7 +109,8 @@
       <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <Optimization>Full</Optimization>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <FunctionLevelLinking>
+      </FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;_CRT_SECURE_NO_WARNINGS;_USE_32BIT_TIME_T;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>precompiled.h</PrecompiledHeaderFile>
@@ -124,11 +121,9 @@
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
-      <ExceptionHandling>false</ExceptionHandling>
+      <ExceptionHandling>Sync</ExceptionHandling>
       <AdditionalIncludeDirectories>$(SolutionDir)../dep/hlsdk/common/;$(SolutionDir)../dep/hlsdk/dlls/;$(SolutionDir)../dep/hlsdk/engine/;$(SolutionDir)../dep/hlsdk/public/;$(SolutionDir)../dep/metamod/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <InterproceduralOptimization>MultiFile</InterproceduralOptimization>
-      <LoopUnrolling>4</LoopUnrolling>
-      <UseIntelOptimizedHeaders>false</UseIntelOptimizedHeaders>
       <FloatingPointModel>Fast</FloatingPointModel>
       <Cpp0xSupport>true</Cpp0xSupport>
     </ClCompile>

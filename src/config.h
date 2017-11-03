@@ -43,9 +43,10 @@ enum reinfozone_log_mode
 
 struct config_t
 {
-	size_t logMode = rl_console | rl_logfile;
-	bool botsFix = false;
+	size_t logMode;
+	bool botsFix;
 	size_t defaultOptions;
+	char defaultLang[4];
 
 	bool hasLogMode(reinfozone_log_mode m) const
 	{

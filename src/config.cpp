@@ -505,6 +505,11 @@ bool parseParam(const char* param, const char* value)
 		g_config.defaultOptions |= opt.integer;
 		return true;
 	}
+	if (!strcmp(param, "default_lang")) {
+		strncpy(g_config.defaultLang, value, sizeof g_config.defaultLang - 1);
+		g_config.defaultLang[sizeof g_config.defaultLang - 1] = '\0';
+		return true;
+	}
 
 	auto cvar = g_engfuncs.pfnCVarGetPointer(param);
 	if (cvar) {
@@ -589,7 +594,7 @@ bool parseMainConfig(const char* path, const char* file)
 				auto b = fields.getField(dt_blue);
 
 				if (x && y && r && g && b)
-					addHudparms(translations, translations_count, x->float_number, y->float_number, r->int_number, g->int_number, b->int_number);
+					addHudparms(translations, translations_count, x->float_number, y->float_number, (byte)r->int_number, (byte)g->int_number, (byte)b->int_number);
 				else
 					LCPrintf("Invalid hud parameters at line %i in %s\n", line_number, file);
 				break;
@@ -682,7 +687,13 @@ bool loadMainConfig()
 
 	char path[260], file[] = "info_zone.ini";
 	g_amxxapi.BuildPathnameR(path, sizeof path - 1, "%s/%s", g_amxxapi.GetLocalInfo("amxx_configsdir", "addons/amxmodx/data"), file);
+
 	memset(&g_config, 0, sizeof g_config);
+	g_config.logMode = rl_console | rl_logfile;
+	g_config.botsFix = false;
+	g_config.defaultOptions = 0;
+	strcpy(g_config.defaultLang, "en");
+
 	resetHudparms();
 
 	if (!parseMainConfig(path, file)) {
