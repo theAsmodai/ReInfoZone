@@ -29,8 +29,8 @@
 
 #if defined(__GNUC__)
 #include <cpuid.h>
-#else
-#include <intrin.h> 
+#elif _MSC_VER >= 1400 && !defined(ASMLIB_H)
+#include <intrin.h>	// __cpuidex
 #endif
 
 #define SSE3_FLAG		(1<<0)

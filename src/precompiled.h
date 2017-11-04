@@ -11,25 +11,14 @@
 
 #include <vector>
 #include <array>
+#include <algorithm>
 
-#include <mathlib.h>
-#include <cvardef.h>
 #include <extdll.h>
-#include <usercmd.h>
+#include <meta_api.h>
 #include <rehlds_api.h>
 #include <sys_shared.h>
+#include <usercmd.h>
 #include <crc32c.h>
-#include <meta_api.h>
-#include <engine_api.h>
-
-#ifdef WIN32
-#define NOINLINE __declspec(noinline)
-#define ALIGN(x) __declspec(align(x))
-#else
-#define NOINLINE __attribute__((noinline))
-#define ALIGN(x) __attribute__((aligned(x)))
-#endif
-#define ALIGN16 ALIGN(16)
 
 #include "amxxmodule.h"
 #include "iz_rehlds_api.h"

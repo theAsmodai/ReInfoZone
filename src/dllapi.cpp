@@ -97,14 +97,14 @@ void ServerDeactivate()
 	RETURN_META(MRES_IGNORED);
 }
 
-void CmdStart(const edict_t* ed, const usercmd_s* cmd, unsigned int random_seed)
+void CmdStart(const edict_t* ed, const usercmd_t* cmd, unsigned int random_seed)
 {
 	auto player = g_players.getPlayer(ed);
 
 	if (player->isInGame()) {	
 		if (cmd->buttons & IN_USE) {
 			if (player->usePressed())
-				const_cast<usercmd_s *>(cmd)->buttons &= ~IN_USE;
+				const_cast<usercmd_t *>(cmd)->buttons &= ~IN_USE;
 		}
 
 		if (iz_smooth_positioning->string[0] != '0')

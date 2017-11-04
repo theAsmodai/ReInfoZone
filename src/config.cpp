@@ -396,7 +396,7 @@ void loadArea(FILE* fp, std::vector<char *>& places)
 
 	if (place && place <= places.size()) {
 		translation_t translation;
-		translation.lang = g_lang.addLang("en");
+		translation.lang = g_lang.getDefault();
 		translation.text = places[place - 1];
 
 		extent.hi[2] += 128.0f;
