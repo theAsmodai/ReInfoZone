@@ -27,8 +27,8 @@ static amxx_module_info_s g_ModuleInfo =
 	Plugin_info.version,
 	FALSE,
 	Plugin_info.logtag,
-	"repatcher",
-	"repatcher"
+	"reinfozone",
+	"reinfozone"
 };
 
 // Storage for the requested functions

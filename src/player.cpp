@@ -326,7 +326,7 @@ void CPlayer::showPosition()
 
 	auto position = player->getPosition(getLang());
 	if (position[0]) {
-		showHud(g_hudparms[clamp(m_options.hudpos, 0u, g_hudparms_count - 1)], HUD_CHECK_INTERVAL, position);
+		showHud(g_hudparms[clamp(m_options.hudpos, 0u, g_hudparms_count - 1u)], HUD_CHECK_INTERVAL, position);
 	}
 }
 
@@ -414,7 +414,7 @@ bool CPlayer::usePressed()
 					radioAimReport(bomb.lastZone);
 				}
 
-				return length(bombOrigin - m_pev->origin) > 100.0;
+				return (bombOrigin - m_pev->origin).Length() > 100.0;
 			}
 		}
 	}

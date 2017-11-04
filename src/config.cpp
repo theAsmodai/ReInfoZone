@@ -86,7 +86,7 @@ const char* data_types[] =
 	"phrase"
 };
 
-section_e getSection(const char* string)
+NOINLINE section_e getSection(const char* string)
 {
 	for (size_t i = 0; i < arraysize(sections); i++) {
 		if (!strcmp(string, sections[i]))
@@ -95,7 +95,7 @@ section_e getSection(const char* string)
 	return st_unknown;
 }
 
-int getDataType(const char* string)
+NOINLINE int getDataType(const char* string)
 {
 	for (size_t i = 0; i < arraysize(data_types); i++) {
 		if (!strcmp(string, data_types[i]))
@@ -109,7 +109,7 @@ CFields::CFields(): m_count(0)
 	
 }
 
-bool CFields::parseFormat(char* string)
+NOINLINE bool CFields::parseFormat(char* string)
 {
 	m_count = 0;
 
@@ -144,7 +144,7 @@ size_t CFields::getCount() const
 	return m_count;
 }
 
-field_data_t* CFields::getField(data_type_e type)
+NOINLINE field_data_t* CFields::getField(data_type_e type)
 {
 	for (size_t i = 0; i < m_count; i++) {
 		if (m_fields[i].type == type)
@@ -158,7 +158,7 @@ field_data_t* CFields::getField(size_t index)
 	return &m_fields[index];
 }
 
-size_t CFields::getTranslations(translation_t* translations, size_t max_count) const
+NOINLINE size_t CFields::getTranslations(translation_t* translations, size_t max_count) const
 {
 	size_t translations_count = 0;
 	for (size_t i = 0; i < m_count; i++) {
@@ -175,7 +175,7 @@ size_t CFields::getTranslations(translation_t* translations, size_t max_count) c
 	return translations_count;
 }
 
-bool parseVector(char* string, Vector& vec)
+NOINLINE bool parseVector(char* string, Vector& vec)
 {
 	char* argv[4];
 	size_t argc = parse(string, argv, arraysize(argv), " \t;", false);
@@ -190,7 +190,7 @@ bool parseVector(char* string, Vector& vec)
 	return false;
 }
 
-bool parseLineToFields(char* line, CFields& fields, const char* file, size_t line_number)
+NOINLINE bool parseLineToFields(char* line, CFields& fields, const char* file, size_t line_number)
 {
 	// format
 	if (line[0] == '{') {
@@ -258,7 +258,7 @@ bool parseLineToFields(char* line, CFields& fields, const char* file, size_t lin
 	return true;
 }
 
-bool parseZonesConfig(const char* path, const char* file)
+NOINLINE bool parseZonesConfig(const char* path, const char* file)
 {
 	FILE* fp = fopen(path, "rt");
 	if (!fp)
@@ -317,7 +317,7 @@ bool parseZonesConfig(const char* path, const char* file)
 	return true;
 }
 
-void loadArea(FILE* fp, std::vector<char *>& places)
+NOINLINE void loadArea(FILE* fp, std::vector<char *>& places)
 {
 	// load ID
 	uint32_t id;
@@ -404,7 +404,7 @@ void loadArea(FILE* fp, std::vector<char *>& places)
 	}
 }
 
-bool loadNavFile()
+NOINLINE bool loadNavFile()
 {
 	char path[MAX_PATH];
 	g_amxxapi.BuildPathnameR(path, sizeof path - 1, "maps/%s.nav", STRING(gpGlobals->mapname));
@@ -439,7 +439,7 @@ bool loadNavFile()
 	for (size_t i = 0; i < count; i++) {
 		fread(&len, sizeof(uint16_t), 1, fp);
 		fread(placeName, sizeof(char), len, fp);
-		places.push_back(_strdup(placeName));
+		places.push_back(strdup(placeName));
 	}
 
 	uint32_t areaCount;
@@ -455,7 +455,7 @@ bool loadNavFile()
 	return true;
 }
 
-bool loadZonesConfig()
+NOINLINE bool loadZonesConfig()
 {
 	char path[260], file[260];
 	snprintf(file, sizeof file, "info_zone_%s.ini", STRING(gpGlobals->mapname));
@@ -470,7 +470,7 @@ bool loadZonesConfig()
 	return true;
 }
 
-bool parseParam(const char* param, const char* value)
+NOINLINE bool parseParam(const char* param, const char* value)
 {
 	CPlayer::options_u opt = {};
 	size_t integer = atoi(value);
@@ -513,7 +513,7 @@ bool parseParam(const char* param, const char* value)
 	return false;
 }
 
-bool parseMainConfig(const char* path, const char* file)
+NOINLINE bool parseMainConfig(const char* path, const char* file)
 {
 	FILE* fp = fopen(path, "rt");
 
@@ -668,7 +668,7 @@ bool parseMainConfig(const char* path, const char* file)
 
 #define REG_CVAR(x) { x = regCvar(&cv_##x); }
 
-bool loadMainConfig()
+NOINLINE bool loadMainConfig()
 {
 	auto regCvar = [](cvar_t* cvar) {g_engfuncs.pfnCvar_RegisterVariable(cvar); return g_engfuncs.pfnCVarGetPointer(cvar->name); };
 
@@ -698,7 +698,7 @@ bool loadMainConfig()
 	return true;
 }
 
-void loadConfigs()
+NOINLINE void loadConfigs()
 {
 	loadMainConfig();
 	bool zones_loaded = loadZonesConfig();
