@@ -158,7 +158,7 @@ bool CGame::atCommand(CPlayer* player, const char* command)
 
 	const char* arg = g_engfuncs.pfnCmd_Argv(1);
 
-	if (!strcmp(arg, "/iz") && !strcmp(command, "say") || !strcmp(command, "say_team")) {
+	if (!strcmp(arg, "/iz") && (!strcmp(command, "say") || !strcmp(command, "say_team"))) {
 		player->showOptions();
 		return true;
 	}
