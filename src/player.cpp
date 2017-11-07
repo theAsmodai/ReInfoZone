@@ -243,16 +243,16 @@ bool CPlayer::onMenuselect(const int option)
 
 void CPlayer::changeOption(const int optId)
 {
-	size_t newHudPos;
-
 	switch (optId) {
 	case 1:
-		newHudPos = m_options.hudpos + 1;
+	{
+		size_t newHudPos = m_options.hudpos + 1;
 		if (newHudPos >= g_hudparms_count)
 			newHudPos = 0;
 		m_options.hudpos = newHudPos;
 		showPosition();
 		break;
+	}
 
 	case 2:
 		m_options.block_radio = !m_options.block_radio;
@@ -265,12 +265,20 @@ void CPlayer::changeOption(const int optId)
 	case 4:
 		m_options.integer = g_config.defaultOptions & 63;
 		break;
+
+	default:
+		;
 	}
 }
 
-bool CPlayer::needSendRadio(CsTeams sender_team) const
+bool CPlayer::needSendRadio(CsTeams sender_team, radio_type type) const
 {
 	if (!m_ingame)
+		return false;
+
+	if (type == rt_command && m_options.block_radio)
+		return false;
+	if (type == rt_fith && m_options.block_fith)
 		return false;
 
 	if (!isSpectator()) {
@@ -438,7 +446,7 @@ void CPlayer::radioCommand(phrase_t& sound, phrase_t& text)
 	for (size_t i = 0; i < g_players.getMaxClients(); i++) {
 		auto& player = g_players[i];
 
-		if (!player.needSendRadio(team) || m_options.block_radio)
+		if (!player.needSendRadio(team, rt_command))
 			continue;
 
 		auto lang = player.getLang();
@@ -465,7 +473,7 @@ void CPlayer::radioThrowGrenade(size_t grenade_type)
 	for (size_t i = 0; i < g_players.getMaxClients(); i++) {
 		auto& player = g_players[i];
 
-		if (!player.needSendRadio(team) || m_options.block_fith)
+		if (!player.needSendRadio(team, rt_fith))
 			continue;
 
 		auto lang = player.getLang();
@@ -491,7 +499,7 @@ void CPlayer::radioAimReport(size_t aimzone)
 	for (size_t i = 0; i < g_players.getMaxClients(); i++) {
 		auto& player = g_players[i];
 
-		if (!player.needSendRadio(team))
+		if (!player.needSendRadio(team, rt_info))
 			continue;
 
 		auto lang = player.getLang();

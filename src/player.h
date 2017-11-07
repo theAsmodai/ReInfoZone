@@ -1,5 +1,12 @@
 #pragma once
 
+enum radio_type
+{
+	rt_command,
+	rt_fith,
+	rt_info
+};
+
 struct radiomenu_t;
 struct radiocommand_t;
 
@@ -106,7 +113,7 @@ private:
 	size_t getSpecMode() const;
 	size_t getSpecTarget() const;
 	int nextHUDChannel() const;
-	bool needSendRadio(CsTeams sender_team) const;
+	bool needSendRadio(CsTeams sender_team, radio_type type) const;
 	void blockGameDllRadio() const;
 	void radioCommand(phrase_t& sound, phrase_t& text);
 	void radioAimReport(size_t aimzone);
