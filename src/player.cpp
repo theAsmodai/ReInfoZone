@@ -21,13 +21,23 @@ const char* fith_formats_def[] =
 	"fith_smoke_def"
 };
 
-hudopt_t g_hudopts[32]; // 2^5
+hudopt_t g_hudopts[16]; // 2^4
 size_t g_hudopts_count;
 CIzPlayers g_players;
 
-CPlayer::CPlayer() : m_pev(nullptr), m_edict(nullptr), m_ingame(false), m_lang(UNKNOWN_LANG), m_lastZoneId(UNKNOWN_ZONE), m_lastZoneTime(0.0), m_lastReport(0.0), m_lastRadio(0), m_amxx(nullptr)
+CPlayer::CPlayer()
 {
+	m_pev = nullptr;
+	m_edict = nullptr;
+	m_ingame = false;
+	m_lang = UNKNOWN_LANG;
 	m_options.integer = 0;
+	m_lastZoneId = UNKNOWN_ZONE;
+	m_leavedZoneId = UNKNOWN_ZONE;
+	m_lastZoneTime = 0.0;
+	m_lastReport = 0.0;
+	m_lastRadio = 0;
+	m_amxx = nullptr;
 }
 
 void CPlayer::init(edict_t* ed)
@@ -73,6 +83,8 @@ void CPlayer::updateZone()
 			return;
 		if (timeFrom(m_lastZoneTime) <= iz_zone_leave_time->value)
 			return;
+		if (m_leavedZoneId == UNKNOWN_ZONE)
+			m_leavedZoneId = m_lastZoneId;
 	}
 	else {
 		m_lastZoneTime = gpGlobals->time;
@@ -131,12 +143,15 @@ int CPlayer::nextHUDChannel() const
 	return ilow;
 }
 
-void CPlayer::showHud(hudopt_t& opt, const char* message) const
+void CPlayer::showHud(hudtextparms_t& parms, float fadeOut, const char* message) const
 {
-	if (!opt.parms.x && !opt.parms.y)
+	if (!parms.x && !parms.y)
 		return;
 
-	UTIL_HudMessage(m_edict, opt.parms, nextHUDChannel(), message);
+	parms.fadeoutTime = fadeOut;
+	parms.channel = nextHUDChannel();
+
+	UTIL_HudMessage(m_edict, parms, message);
 }
 
 void CPlayer::showMenu(radiomenu_t* menu) const
@@ -298,9 +313,18 @@ void CPlayer::showPosition()
 	else
 		player = this;
 
+	auto& hudparms = g_hudopts[clamp(m_options.hudpos, 0u, g_hudopts_count - 1u)].parms;
+
 	auto position = player->getPosition(getLang());
-	if (position[0]) {
-		showHud(g_hudopts[clamp(m_options.hudpos, 0u, g_hudopts_count - 1u)], position);
+	if (position[0])
+		return showHud(hudparms, fixedUnsigned16(HUD_FADEOUT, 1 << 8), position);
+		
+	if (m_leavedZoneId != UNKNOWN_ZONE) {
+		position = g_zoneManager.getZoneName(m_leavedZoneId, getLang());
+		m_leavedZoneId = UNKNOWN_ZONE;
+
+		if (position[0])
+			showHud(hudparms, fixedUnsigned16(HUD_FADEOUT_LONG, 1 << 8), position);
 	}
 }
 
@@ -529,6 +553,10 @@ CPlayer& CIzPlayers::operator[](size_t index)
 	return m_players[index];
 }
 
+CIzPlayers::CIzPlayers(): m_maxplayers()
+{
+}
+
 void CIzPlayers::init(edict_t* ed, size_t maxplayers)
 {
 	m_maxplayers = maxplayers;
@@ -582,7 +610,7 @@ void addHudopt(translation_t* translations, size_t translations_count, float x, 
 	opt->parms.b1 = blue;
 	opt->parms.r2 = 255;
 	opt->parms.g2 = 255;
-	opt->parms.b2 = 250;
+	opt->parms.b2 = 255;
 	opt->parms.fadeinTime = fixedUnsigned16(HUD_FADEIN, 1 << 8);
 	opt->parms.fadeoutTime = fixedUnsigned16(HUD_FADEOUT, 1 << 8);
 	opt->parms.holdTime = fixedUnsigned16(HUD_CHECK_INTERVAL + 0.02, 1 << 8);

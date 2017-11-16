@@ -99,11 +99,11 @@ NOINLINE void UTIL_LogPrintf(char *fmt, ...)
 	ALERT(at_logged, "%s", string);
 }
 
-NOINLINE void UTIL_HudMessage(edict_t * pEntity, const hudtextparms_t& textparms, int channel, const char* pMessage)
+NOINLINE void UTIL_HudMessage(edict_t * pEntity, const hudtextparms_t& textparms, const char* pMessage)
 {
 	MESSAGE_BEGIN(MSG_ONE, SVC_TEMPENTITY, nullptr, pEntity);
 		WRITE_BYTE(TE_TEXTMESSAGE);
-		WRITE_BYTE(channel);
+		WRITE_BYTE(textparms.channel);
 
 		WRITE_SHORT(textparms.x);
 		WRITE_SHORT(textparms.y);

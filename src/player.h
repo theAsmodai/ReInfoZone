@@ -89,7 +89,7 @@ public:
 	void radio(const radiocommand_t* rc);
 	void radioThrowGrenade(size_t grenade_type);
 
-	void showHud(hudopt_t& parms, const char* message) const;
+	void showHud(hudtextparms_t& parms, float fadeOut, const char* message) const;
 	void showMenu(radiomenu_t* menu) const;
 	void showMenu(int keys, const char* text, size_t len, _Menu menu) const;
 	void showOptions() const;
@@ -101,9 +101,9 @@ public:
 		size_t integer;
 		struct
 		{
+			size_t hudpos : 4;
 			size_t block_radio : 1;
 			size_t block_fith : 1;
-			size_t hudpos : 5;
 		};
 	};
 
@@ -128,6 +128,7 @@ private:
 	lang_t m_lang;
 	options_u m_options; // 6 bit max
 	size_t m_lastZoneId;
+	size_t m_leavedZoneId;
 	float m_lastZoneTime;
 	float m_lastReport;
 	float m_lastRadio;
@@ -137,6 +138,8 @@ private:
 class CIzPlayers
 {
 public:
+	CIzPlayers();;
+
 	void init(edict_t* ed, size_t maxplayers);
 	void updateHud();
 	void resetPositionsData();
