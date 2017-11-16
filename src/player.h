@@ -10,11 +10,10 @@ enum radio_type
 struct radiomenu_t;
 struct radiocommand_t;
 
-struct hudparms_t
+struct hudopt_t
 {
-	phrase_t phrase;
-	Vector2D coord;
-	color24 color;
+	phrase_t		phrase;
+	hudtextparms_t	parms;
 };
 
 struct AString
@@ -90,7 +89,7 @@ public:
 	void radio(const radiocommand_t* rc);
 	void radioThrowGrenade(size_t grenade_type);
 
-	void showHud(hudparms_t& parms, float holdTime, const char* message) const;
+	void showHud(hudopt_t& parms, const char* message) const;
 	void showMenu(radiomenu_t* menu) const;
 	void showMenu(int keys, const char* text, size_t len, _Menu menu) const;
 	void showOptions() const;
@@ -102,9 +101,9 @@ public:
 		size_t integer;
 		struct
 		{
-			size_t hudpos : 3;
 			size_t block_radio : 1;
 			size_t block_fith : 1;
+			size_t hudpos : 5;
 		};
 	};
 
@@ -159,5 +158,5 @@ private:
 
 extern CIzPlayers g_players;
 
-void resetHudparms();
-void addHudparms(translation_t* translations, size_t translations_count, float x, float y, byte red, byte green, byte blue);
+void resetHudopts();
+void addHudopt(translation_t* translations, size_t translations_count, float x, float y, byte red, byte green, byte blue);

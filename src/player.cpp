@@ -21,8 +21,8 @@ const char* fith_formats_def[] =
 	"fith_smoke_def"
 };
 
-hudparms_t g_hudparms[8];
-size_t g_hudparms_count;
+hudopt_t g_hudopts[32]; // 2^5
+size_t g_hudopts_count;
 CIzPlayers g_players;
 
 CPlayer::CPlayer() : m_pev(nullptr), m_edict(nullptr), m_ingame(false), m_lang(UNKNOWN_LANG), m_lastZoneId(UNKNOWN_ZONE), m_lastZoneTime(0.0), m_lastReport(0.0), m_lastRadio(0), m_amxx(nullptr)
@@ -131,46 +131,12 @@ int CPlayer::nextHUDChannel() const
 	return ilow;
 }
 
-void CPlayer::showHud(hudparms_t& parms, float holdTime, const char* message) const
+void CPlayer::showHud(hudopt_t& opt, const char* message) const
 {
-	if (!parms.coord.x && !parms.coord.y)
+	if (!opt.parms.x && !opt.parms.y)
 		return;
 
-	MESSAGE_BEGIN(MSG_ONE, SVC_TEMPENTITY, NULL, m_pev->pContainingEntity);
-		WRITE_BYTE(TE_TEXTMESSAGE);
-		WRITE_BYTE(nextHUDChannel());
-
-		WRITE_SHORT(fixedSigned16(parms.coord.x, 1 << 13));
-		WRITE_SHORT(fixedSigned16(parms.coord.y, 1 << 13));
-		WRITE_BYTE(0);
-
-		WRITE_BYTE(parms.color.r);
-		WRITE_BYTE(parms.color.g);
-		WRITE_BYTE(parms.color.b);
-		WRITE_BYTE(0);
-
-		WRITE_BYTE(255);
-		WRITE_BYTE(255);
-		WRITE_BYTE(255);
-		WRITE_BYTE(0);
-
-		WRITE_SHORT(fixedUnsigned16(0.05, 1 << 8));
-		WRITE_SHORT(fixedUnsigned16(2.0, 1 << 8));
-		WRITE_SHORT(fixedUnsigned16(holdTime, 1 << 8));
-
-		//if (effect == 2)
-			//WRITE_SHORT(fixedUnsigned16(textparms.fxTime, 1 << 8));
-
-		if (strlen(message) < 512) {
-			WRITE_STRING(message);
-		}
-		else {
-			char tmp[512];
-			memcpy(tmp, message, 511);
-			tmp[sizeof tmp - 1] = 0;
-			WRITE_STRING(tmp);
-		}
-	MESSAGE_END();
+	UTIL_HudMessage(m_edict, opt.parms, nextHUDChannel(), message);
 }
 
 void CPlayer::showMenu(radiomenu_t* menu) const
@@ -200,7 +166,7 @@ void CPlayer::showOptions() const
 	auto disabled = g_lang.localize("disabled", lang, "\\rdisabled\\w");
 
 	CMsgBuf buf(va("%s\n\n", g_lang.localize("options_menu", lang, "\\yOptions\\w")));
-	buf.add(va("%s %s\n", g_lang.localize("options_hud", lang, "1. HUD position:"), g_lang.localize(g_hudparms[m_options.hudpos].phrase, lang)));
+	buf.add(va("%s %s\n", g_lang.localize("options_hud", lang, "1. HUD position:"), g_lang.localize(g_hudopts[m_options.hudpos].phrase, lang)));
 	buf.add(va("%s %s\n", g_lang.localize("options_radio", lang, "2. Radio commands:"), m_options.block_radio ? disabled : enabled));
 	buf.add(va("%s %s\n", g_lang.localize("options_fith", lang, "3. Fire in the hole:"), m_options.block_fith ? disabled : enabled));
 	buf.add(va("%s\n", g_lang.localize("options_reset", lang, "4. Restore defaults")));
@@ -247,7 +213,7 @@ void CPlayer::changeOption(const int optId)
 	case 1:
 	{
 		size_t newHudPos = m_options.hudpos + 1;
-		if (newHudPos >= g_hudparms_count)
+		if (newHudPos >= g_hudopts_count)
 			newHudPos = 0;
 		m_options.hudpos = newHudPos;
 		showPosition();
@@ -334,7 +300,7 @@ void CPlayer::showPosition()
 
 	auto position = player->getPosition(getLang());
 	if (position[0]) {
-		showHud(g_hudparms[clamp(m_options.hudpos, 0u, g_hudparms_count - 1u)], HUD_CHECK_INTERVAL, position);
+		showHud(g_hudopts[clamp(m_options.hudpos, 0u, g_hudopts_count - 1u)], position);
 	}
 }
 
@@ -573,7 +539,7 @@ void CIzPlayers::init(edict_t* ed, size_t maxplayers)
 
 void CIzPlayers::updateHud()
 {
-	if (!g_game.isGameActive() || !g_hudparms_count || !g_zoneManager.getZonesCount())
+	if (!g_game.isGameActive() || !g_hudopts_count || !g_zoneManager.getZonesCount())
 		return;
 
 	for (size_t i = 0; i < m_maxplayers; i++) {
@@ -595,20 +561,29 @@ size_t CIzPlayers::getMaxClients() const
 	return m_maxplayers;
 }
 
-void resetHudparms()
+void resetHudopts()
 {
-	g_hudparms_count = 0;
+	g_hudopts_count = 0;
 }
 
-void addHudparms(translation_t* translations, size_t translations_count, float x, float y, byte red, byte green, byte blue)
+void addHudopt(translation_t* translations, size_t translations_count, float x, float y, byte red, byte green, byte blue)
 {
-	if (g_hudparms_count == arraysize(g_hudparms))
+	if (g_hudopts_count == arraysize(g_hudopts))
 		return;
 
-	auto hudparms = &g_hudparms[g_hudparms_count++];
-	hudparms->phrase = phrase_t(translations, translations_count);
-	hudparms->coord = Vector2D(x, y);
-	hudparms->color.r = red;
-	hudparms->color.g = green;
-	hudparms->color.b = blue;
+	auto opt = &g_hudopts[g_hudopts_count++];
+	opt->phrase = phrase_t(translations, translations_count);
+	
+	memset(&opt->parms, 0, sizeof(hudtextparms_t));
+	opt->parms.x = fixedSigned16(x, 1 << 13);
+	opt->parms.y = fixedSigned16(y, 1 << 13);
+	opt->parms.r1 = red;
+	opt->parms.g1 = green;
+	opt->parms.b1 = blue;
+	opt->parms.r2 = 255;
+	opt->parms.g2 = 255;
+	opt->parms.b2 = 250;
+	opt->parms.fadeinTime = fixedUnsigned16(HUD_FADEIN, 1 << 8);
+	opt->parms.fadeoutTime = fixedUnsigned16(HUD_FADEOUT, 1 << 8);
+	opt->parms.holdTime = fixedUnsigned16(HUD_CHECK_INTERVAL + 0.02, 1 << 8);
 }

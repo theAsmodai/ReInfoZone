@@ -1,5 +1,7 @@
 #pragma once
 
+#define HUD_FADEIN					0.0
+#define HUD_FADEOUT					0.0
 #define HUD_CHECK_INTERVAL			0.2
 
 extern cvar_t* iz_zone_leave_time;

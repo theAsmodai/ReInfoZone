@@ -587,7 +587,7 @@ NOINLINE bool parseMainConfig(const char* path, const char* file)
 				auto b = fields.getField(dt_blue);
 
 				if (x && y && r && g && b)
-					addHudparms(translations, translations_count, x->float_number, y->float_number, (byte)r->int_number, (byte)g->int_number, (byte)b->int_number);
+					addHudopt(translations, translations_count, x->float_number, y->float_number, (byte)r->int_number, (byte)g->int_number, (byte)b->int_number);
 				else
 					LCPrintf("Invalid hud parameters at line %i in %s\n", line_number, file);
 				break;
@@ -687,7 +687,7 @@ NOINLINE bool loadMainConfig()
 	g_config.defaultOptions = 0;
 	strcpy(g_config.defaultLang, "en");
 
-	resetHudparms();
+	resetHudopts();
 
 	if (!parseMainConfig(path, file)) {
 		LCPrintf("Main config file %s not found.\n", file);

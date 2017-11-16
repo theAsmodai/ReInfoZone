@@ -99,6 +99,45 @@ NOINLINE void UTIL_LogPrintf(char *fmt, ...)
 	ALERT(at_logged, "%s", string);
 }
 
+NOINLINE void UTIL_HudMessage(edict_t * pEntity, const hudtextparms_t& textparms, int channel, const char* pMessage)
+{
+	MESSAGE_BEGIN(MSG_ONE, SVC_TEMPENTITY, nullptr, pEntity);
+		WRITE_BYTE(TE_TEXTMESSAGE);
+		WRITE_BYTE(channel);
+
+		WRITE_SHORT(textparms.x);
+		WRITE_SHORT(textparms.y);
+		WRITE_BYTE(textparms.effect);
+
+		WRITE_BYTE(textparms.r1);
+		WRITE_BYTE(textparms.g1);
+		WRITE_BYTE(textparms.b1);
+		WRITE_BYTE(textparms.a1);
+
+		WRITE_BYTE(textparms.r2);
+		WRITE_BYTE(textparms.g2);
+		WRITE_BYTE(textparms.b2);
+		WRITE_BYTE(textparms.a2);
+
+		WRITE_SHORT(textparms.fadeinTime);
+		WRITE_SHORT(textparms.fadeoutTime);
+		WRITE_SHORT(textparms.holdTime);
+
+		if (textparms.effect == 2)
+			WRITE_SHORT(textparms.fxTime);
+
+		if (strlen(pMessage) < 512) {
+			WRITE_STRING(pMessage);
+		}
+		else {
+			char tmp[512];
+			strncpy(tmp, pMessage, sizeof tmp - 1);
+			tmp[sizeof tmp - 1] = '\0';
+			WRITE_STRING(tmp);
+		}
+	MESSAGE_END();
+}
+
 NOINLINE void UTIL_ClientSayText(edict_t *pEntity, char* msg, int sender, CsTeams team)
 {
 	if (sender) {

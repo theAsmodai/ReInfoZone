@@ -51,6 +51,7 @@ void LCPrintf(const char *fmt, ...);
 void debug(const char* fmt, ...);
 
 void UTIL_SysError(const char* fmt, ...);
+void UTIL_HudMessage(edict_t* pEntity, const hudtextparms_t& textparms, int channel, const char* pMessage);
 void UTIL_PrintChatColor(size_t player, const char* msg);
 void UTIL_ClientPrint(edict_t* pEntity, int msg_dest, char* msg);
 void UTIL_ShowMenu(edict_t* pEdict, int keybits, int time, char *menu, int mlen);
