@@ -8,20 +8,20 @@ enum
 	m_iMenu = 820
 };
 
-const char* fith_formats_loc[] =
+const char* g_fith_formats_loc[] =
 {
 	"fith_he_loc",
 	"fith_flahs_loc",
 	"fith_smoke_loc"
 };
-const char* fith_formats_def[] =
+const char* g_fith_formats_def[] =
 {
 	"fith_he_def",
 	"fith_flahs_def",
 	"fith_smoke_def"
 };
 
-hudopt_t g_hudopts[16]; // 2^4
+hudopt_t g_hudopts[1 << 4];
 size_t g_hudopts_count;
 CIzPlayers g_players;
 
@@ -471,7 +471,7 @@ void CPlayer::radioThrowGrenade(size_t grenade_type)
 		auto audio = g_lang.localize("fith_sound", lang, "%!MRAD_FIREINHOLE");
 		UTIL_SendRadioSound(player.m_edict, index, audio);
 
-		CMsgBuf msg(g_lang.localize(position[0] ? fith_formats_loc[grenade_type] : fith_formats_def[grenade_type], lang, "[name] (RADIO): [command]"));
+		CMsgBuf msg(g_lang.localize(position[0] ? g_fith_formats_loc[grenade_type] : g_fith_formats_def[grenade_type], lang, "[name] (RADIO): [command]"));
 		msg.replace("[zone]", position);
 		msg.replace("[name]", STRING(m_pev->netname));
 		UTIL_PrintChatColor(i + 1, msg.data());

@@ -26,7 +26,7 @@ enum section_e
 	st_radio
 };
 
-const char* sections[] =
+const char* g_sections[] =
 {
 	"",
 	"MAIN",
@@ -35,7 +35,7 @@ const char* sections[] =
 	"RADIO",
 };
 
-const char* section_default_format[] =
+const char* g_section_default_format[] =
 {
 	"",
 	"param value",
@@ -66,7 +66,7 @@ enum data_type_e
 	dt_translation
 };
 
-const char* data_types[] =
+const char* g_data_types[] =
 {
 	"",
 	"param",
@@ -88,8 +88,8 @@ const char* data_types[] =
 
 NOINLINE section_e getSection(const char* string)
 {
-	for (size_t i = 0; i < arraysize(sections); i++) {
-		if (!strcmp(string, sections[i]))
+	for (size_t i = 0; i < arraysize(g_sections); i++) {
+		if (!strcmp(string, g_sections[i]))
 			return section_e(i);
 	}
 	return st_unknown;
@@ -97,8 +97,8 @@ NOINLINE section_e getSection(const char* string)
 
 NOINLINE int getDataType(const char* string)
 {
-	for (size_t i = 0; i < arraysize(data_types); i++) {
-		if (!strcmp(string, data_types[i]))
+	for (size_t i = 0; i < arraysize(g_data_types); i++) {
+		if (!strcmp(string, g_data_types[i]))
 			return i;
 	}
 	return dt_unknown;
@@ -541,9 +541,9 @@ NOINLINE bool parseMainConfig(const char* path, const char* file)
 			if (nullLast(line, ']'))
 				section = getSection(line);
 
-			if (section != st_unknown && section < arraysize(section_default_format)) {
+			if (section != st_unknown && section < arraysize(g_section_default_format)) {
 				char temp[256];
-				strcpy(temp, section_default_format[section]);
+				strcpy(temp, g_section_default_format[section]);
 				fields.parseFormat(temp);
 			}
 
@@ -678,7 +678,7 @@ NOINLINE bool loadMainConfig()
 	REG_CVAR(iz_max_aim_angle);
 	REG_CVAR(iz_item_max_radius);
 
-	char path[260], file[] = "info_zone.ini";
+	char path[260], file[] = "reinfozone.ini";
 	g_amxxapi.BuildPathnameR(path, sizeof path - 1, "%s/%s", g_amxxapi.GetLocalInfo("amxx_configsdir", "addons/amxmodx/data"), file);
 
 	memset(&g_config, 0, sizeof g_config);
