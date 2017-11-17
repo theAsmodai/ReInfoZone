@@ -399,7 +399,7 @@ NOINLINE void loadArea(FILE* fp, std::vector<char *>& places)
 		translation.lang = g_lang.getDefault();
 		translation.text = places[place - 1];
 
-		extent.hi[2] += 128.0f;
+		extent.hi[2] += 256.0f;
 		g_zoneManager.addZone(&translation, 1, extent.lo, extent.hi);
 	}
 }
