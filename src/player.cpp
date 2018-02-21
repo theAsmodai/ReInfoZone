@@ -106,10 +106,11 @@ const char* CPlayer::getPosition(lang_t lang)
 void CPlayer::loadOptions(char* info)
 {
 	uint8 options = g_engfuncs.pfnInfoKeyValue(info, "iz")[0];
-
-	if (options > '\\')
-		options--;
-	options -= ' ';
+	if (options) {
+		if (options > '\\')
+			options--;
+		options -= ' ';
+	}
 
 	m_options.integer = (options ^ g_config.defaultOptions) & 63;
 	m_lang = g_engfuncs.pfnInfoKeyValue(info, "lang");

@@ -95,7 +95,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\amxmodx\configs\info_zone.ini">
+    <None Include="..\..\amxmodx\configs\reinfozone.ini">
       <Filter>Configs</Filter>
     </None>
   </ItemGroup>
